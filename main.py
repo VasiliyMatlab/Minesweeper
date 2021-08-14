@@ -1,24 +1,47 @@
 import tkinter as tk
 
-ROWS    = 5 # кол-во строк
-COLUMNS = 7 # кол-во столбцов
 
-# Создаем окно
-window = tk.Tk()
-#
-FONT = "Calibri 15 bold"
+class MineSweeper:
+    # Создаем окно
+    window = tk.Tk()
+    ROWS    = 10 # кол-во строк
+    COLUMNS = 7  # кол-во столбцов
+    BUTTON_WIDTH = 3 # размер кнопки
+    FONT = "Calibri 15 bold" # шрифт
 
-# Создаем кнопки
-buttons = list()
-BUTTON_WIDTH = 3
-# Цикл по строкам
-for i in range(ROWS):
-    temp = list()
-    # Цикл по столбцам
-    for j in range(COLUMNS):
-        btn = tk.Button(window, width=BUTTON_WIDTH, font=FONT)
-        btn.grid(row=i, column=j)
-        temp.append(btn)
-    buttons.append(temp) 
+    def __init__(self) -> None:
+        # Создаем кнопки
+        self.buttons = list()
+        # Цикл по строкам
+        for i in range(MineSweeper.ROWS):
+            temp = list()
+            # Цикл по столбцам
+            for j in range(MineSweeper.COLUMNS):
+                btn = tk.Button(MineSweeper.window, \
+                    width=MineSweeper.BUTTON_WIDTH, font=MineSweeper.FONT)
+                temp.append(btn)
+            self.buttons.append(temp)
 
-window.mainloop()
+    # Создание кнопок
+    def create_widgets(self):
+        # Цикл по строкам
+        for i in range(MineSweeper.ROWS):
+            # Цикл по столбцам
+            for j in range(MineSweeper.COLUMNS):
+                btn = self.buttons[i][j]
+                btn.grid(row=i, column=j)
+
+    # Старт игры
+    def start(self):
+        self.create_widgets()
+        self.print_buttons()
+        MineSweeper.window.mainloop()
+    
+    # Вывод кнопок в консоль
+    def print_buttons(self):
+        for row in self.buttons:
+            print(row)
+
+
+game = MineSweeper()
+game.start()
