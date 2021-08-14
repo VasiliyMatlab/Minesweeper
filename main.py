@@ -1,13 +1,24 @@
 import tkinter as tk
 
-
-class MineSweeper:
-    # Создаем окно
-    window = tk.Tk()
-    ROWS    = 10 # кол-во строк
-    COLUMNS = 7  # кол-во столбцов
+class MyButton(tk.Button):
     BUTTON_WIDTH = 3 # размер кнопки
     FONT = "Calibri 15 bold" # шрифт
+
+    def __init__(self, master, x, y, *args, **kwargs) -> None:
+        super(MyButton, self).__init__(master, width=MyButton.BUTTON_WIDTH,\
+            font=MyButton.FONT, *args, **kwargs)
+        self.x = x
+        self.y = y
+        self.is_mine = False
+
+    def __repr__(self) -> str:
+        return f"MyButton{{{self.x}, {self.y}}}"
+
+
+class MineSweeper:
+    window = tk.Tk() # создание окна
+    ROWS    = 10 # кол-во строк
+    COLUMNS = 7  # кол-во столбцов
 
     def __init__(self) -> None:
         # Создаем кнопки
@@ -17,8 +28,7 @@ class MineSweeper:
             temp = list()
             # Цикл по столбцам
             for j in range(MineSweeper.COLUMNS):
-                btn = tk.Button(MineSweeper.window, \
-                    width=MineSweeper.BUTTON_WIDTH, font=MineSweeper.FONT)
+                btn = MyButton(MineSweeper.window, x=i, y=j)
                 temp.append(btn)
             self.buttons.append(temp)
 
