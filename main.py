@@ -3,6 +3,7 @@ from random import shuffle
 
 # Цвета цифр
 colors = {
+    0: "#ffffff",
     1: "#038cfc",
     2: "#02cc24",
     3: "#a88402",
@@ -26,6 +27,7 @@ class MyButton(tk.Button):
         self.number = number
         self.is_mine = False
         self.count_bomb = 0
+        self.is_open = False
 
     def __repr__(self) -> str:
         return f"MyButton {self.number} {self.is_mine} {{{self.x}, {self.y}}}"
@@ -33,8 +35,8 @@ class MyButton(tk.Button):
 
 class MineSweeper:
     window  = tk.Tk()   # создание окна
-    ROWS    = 5         # кол-во строк
-    COLUMNS = 5         # кол-во столбцов
+    ROWS    = 10        # кол-во строк
+    COLUMNS = 10        # кол-во столбцов
     MINES   = 10        # кол-во мин
 
     def __init__(self) -> None:
@@ -56,15 +58,48 @@ class MineSweeper:
         if clicked_button.is_mine:
             clicked_button.config(text="*", background="red", \
                 disabledforeground="black")
+            clicked_button.is_open = True
         else:
             if clicked_button.count_bomb:
                 color = colors.get(clicked_button.count_bomb, "black")
                 clicked_button.config(text=clicked_button.count_bomb, \
                     disabledforeground=color)
+                clicked_button.is_open = True
             else:
-                clicked_button.config(text='', \
-                    disabledforeground="white")
+                self.breadth_first_search(clicked_button)
         clicked_button.config(state="disabled", relief=tk.SUNKEN)
+
+    # Открытие свободных клеток (алгоритм обхода в ширину)
+    def breadth_first_search(self, btn: MyButton):
+        queue = [btn]
+        while queue:
+            # Открываем текущую кнопку
+            cur_btn = queue.pop()
+            color = colors.get(cur_btn.count_bomb, "black")
+            if cur_btn.count_bomb:
+                cur_btn.config(text=cur_btn.count_bomb, \
+                    disabledforeground=color)
+            else:
+                cur_btn.config(text='', disabledforeground=color)
+            cur_btn.is_open = True
+            cur_btn.config(state="disabled", relief=tk.SUNKEN)
+            # Обрабатываем соседей
+            if not cur_btn.count_bomb:
+                x, y = cur_btn.x, cur_btn.y
+                for dx in [-1, 0, 1]:
+                    for dy in [-1, 0, 1]:
+                        '''if not abs(dx-dy) == 1:
+                            continue'''
+                        next_btn = self.buttons[x+dx][y+dy]
+                        '''if not next_btn.is_open and \
+                                1<=next_btn.x<=MineSweeper.ROWS and \
+                                1<=next_btn.y<=MineSweeper.COLUMNS and \
+                                next_btn not in queue:'''
+                        # Если кнопка не была открыта, не барьерная и 
+                        # ее нет в очереди, то добавляем в очередь
+                        if not next_btn.is_open and next_btn.number != 0 and \
+                                next_btn not in queue:
+                            queue.append(next_btn)
 
     # Создание кнопок
     def create_widgets(self):
