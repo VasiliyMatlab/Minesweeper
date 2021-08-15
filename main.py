@@ -1,5 +1,6 @@
 import tkinter as tk
 from random import shuffle
+from tkinter.messagebox import showinfo
 
 # Цвета цифр
 colors = {
@@ -38,6 +39,8 @@ class MineSweeper:
     ROWS    = 10        # кол-во строк
     COLUMNS = 10        # кол-во столбцов
     MINES   = 10        # кол-во мин
+    IS_GAME_OVER    = False # закончена ли игра
+    WAS_FIRST_CLICK = False # был ли совершен первый клик 
 
     def __init__(self) -> None:
         # Создаем кнопки
@@ -54,11 +57,29 @@ class MineSweeper:
 
     # Обработчик нажатия кнопки
     def click(self, clicked_button: MyButton):
+        # Если первый клик не был совершен
+        if not MineSweeper.WAS_FIRST_CLICK:
+            self.insert_mines(clicked_button.number)
+            self.count_mines_in_buttons()
+            self.print_buttons()
+            MineSweeper.WAS_FIRST_CLICK = True
         print(clicked_button)
         if clicked_button.is_mine:
             clicked_button.config(text="*", background="red", \
                 disabledforeground="black")
             clicked_button.is_open = True
+            MineSweeper.IS_GAME_OVER = True
+            showinfo("Game over", "You lose!")
+            # Цикл по строкам
+            for i in range(1, MineSweeper.ROWS + 1):
+                # Цикл по столбцам
+                for j in range(1, MineSweeper.COLUMNS + 1):
+                    btn = self.buttons[i][j]
+                    if btn.is_mine:
+                        btn.config(text="*", background="red", \
+                            disabledforeground="black")
+                        btn.config(state="disabled", relief=tk.SUNKEN)
+                        
         else:
             if clicked_button.count_bomb:
                 color = colors.get(clicked_button.count_bomb, "black")
@@ -95,7 +116,7 @@ class MineSweeper:
                                 1<=next_btn.x<=MineSweeper.ROWS and \
                                 1<=next_btn.y<=MineSweeper.COLUMNS and \
                                 next_btn not in queue:'''
-                        # Если кнопка не была открыта, не барьерная и 
+                        # Если кнопка не была открыта, не является барьерной и
                         # ее нет в очереди, то добавляем в очередь
                         if not next_btn.is_open and next_btn.number != 0 and \
                                 next_btn not in queue:
@@ -103,12 +124,15 @@ class MineSweeper:
 
     # Создание кнопок
     def create_widgets(self):
+        count = 1
         # Цикл по строкам
         for i in range(1, MineSweeper.ROWS + 1):
             # Цикл по столбцам
             for j in range(1, MineSweeper.COLUMNS + 1):
                 btn = self.buttons[i][j]
+                btn.number = count
                 btn.grid(row=i, column=j)
+                count += 1
 
     # Отображение открытого поля
     def open_all_buttons(self):
@@ -128,9 +152,6 @@ class MineSweeper:
     # Старт игры
     def start(self):
         self.create_widgets()
-        self.insert_mines()
-        self.count_mines_in_buttons()
-        self.print_buttons()
         #self.open_all_buttons()
         MineSweeper.window.mainloop()
     
@@ -146,18 +167,15 @@ class MineSweeper:
             print()
 
     # Расстановка мин
-    def insert_mines(self):
-        mines_indexes = self.get_mines_places()
-        count = 1
+    def insert_mines(self, number: int):
+        mines_indexes = self.get_mines_places(number)
         # Цикл по строкам
         for i in range(1, MineSweeper.ROWS + 1):
             # Цикл по столбцам
             for j in range(1, MineSweeper.COLUMNS + 1):
                 btn = self.buttons[i][j]
-                btn.number = count
                 if btn.number in mines_indexes:
                     btn.is_mine = True
-                count += 1
 
     # Подсчет кол-ва мин вокруг каждой ячейки
     def count_mines_in_buttons(self):
@@ -177,10 +195,15 @@ class MineSweeper:
 
     # Генерация расположения мин
     @staticmethod
-    def get_mines_places():
+    def get_mines_places(exclude_number: int):
         indexes = list(range(1, MineSweeper.ROWS*MineSweeper.COLUMNS + 1))
+        indexes.remove(exclude_number)
         shuffle(indexes)
         return indexes[:MineSweeper.MINES]
 
-game = MineSweeper()
-game.start()
+def main():
+    game = MineSweeper()
+    game.start()
+
+if __name__ == '__main__':
+    main()
