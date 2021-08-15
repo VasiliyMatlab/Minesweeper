@@ -1,13 +1,26 @@
 import tkinter as tk
 from random import shuffle
 
+# Цвета цифр
+colors = {
+    1: "#038cfc",
+    2: "#02cc24",
+    3: "#a88402",
+    4: "#91008a",
+    5: "#cc2a02",
+    6: "#1400ab",
+    7: "#366946",
+    8: "#3b2626",
+}
+
+
 class MyButton(tk.Button):
-    BUTTON_WIDTH = 3            # размер кнопки
+    BUTTON_SIZE = 3             # размер кнопки
     FONT = "Calibri 15 bold"    # шрифт
 
     def __init__(self, master, x, y, number=0, *args, **kwargs) -> None:
-        super(MyButton, self).__init__(master, width=MyButton.BUTTON_WIDTH,\
-            font=MyButton.FONT, *args, **kwargs)
+        super(MyButton, self).__init__(master, width=MyButton.BUTTON_SIZE,\
+            height=MyButton.BUTTON_SIZE, font=MyButton.FONT, *args, **kwargs)
         self.x = x
         self.y = y
         self.number = number
@@ -19,10 +32,10 @@ class MyButton(tk.Button):
 
 
 class MineSweeper:
-    window = tk.Tk()    # создание окна
+    window  = tk.Tk()   # создание окна
     ROWS    = 5         # кол-во строк
     COLUMNS = 5         # кол-во столбцов
-    MINES  = 10         # кол-во мин
+    MINES   = 10        # кол-во мин
 
     def __init__(self) -> None:
         # Создаем кнопки
@@ -57,6 +70,7 @@ class MineSweeper:
                 btn = self.buttons[i][j]
                 btn.grid(row=i, column=j)
 
+    # Отображение открытого поля
     def open_all_buttons(self):
         # Цикл по строкам
         for i in range(MineSweeper.ROWS + 2):
@@ -66,9 +80,10 @@ class MineSweeper:
                 if btn.is_mine:
                     btn.config(text="*", background="red", \
                         disabledforeground="black")
-                else:
+                elif btn.count_bomb in colors:
+                    color = colors.get(btn.count_bomb, "black")
                     btn.config(text=btn.count_bomb, \
-                        disabledforeground="black")
+                        disabledforeground="black", fg = color)
 
     # Старт игры
     def start(self):
@@ -81,14 +96,22 @@ class MineSweeper:
     
     # Вывод кнопок в консоль
     def print_buttons(self):
-        for row in self.buttons:
-            print(row)
+        for i in range(1, MineSweeper.ROWS + 1):
+            for j in range(1, MineSweeper.COLUMNS + 1):
+                btn = self.buttons[i][j]
+                if btn.is_mine:
+                    print('B', end='')
+                else:
+                    print(btn.count_bomb, end='')
+            print()
 
     # Расстановка мин
     def insert_mines(self):
         mines_indexes = self.get_mines_places()
         count = 1
+        # Цикл по строкам
         for i in range(1, MineSweeper.ROWS + 1):
+            # Цикл по столбцам
             for j in range(1, MineSweeper.COLUMNS + 1):
                 btn = self.buttons[i][j]
                 btn.number = count
@@ -96,8 +119,11 @@ class MineSweeper:
                     btn.is_mine = True
                 count += 1
 
+    # Подсчет кол-ва мин вокруг каждой ячейки
     def count_mines_in_buttons(self):
+        # Цикл по строкам
         for i in range(1, MineSweeper.ROWS + 1):
+            # Цикл по столбцам
             for j in range(1, MineSweeper.COLUMNS + 1):
                 btn = self.buttons[i][j]
                 count_bomb = 0
