@@ -1,10 +1,9 @@
-import random
 import tkinter as tk
 from random import shuffle
 
 class MyButton(tk.Button):
-    BUTTON_WIDTH = 3 # размер кнопки
-    FONT = "Calibri 15 bold" # шрифт
+    BUTTON_WIDTH = 3            # размер кнопки
+    FONT = "Calibri 15 bold"    # шрифт
 
     def __init__(self, master, x, y, number, *args, **kwargs) -> None:
         super(MyButton, self).__init__(master, width=MyButton.BUTTON_WIDTH,\
@@ -22,7 +21,7 @@ class MineSweeper:
     window = tk.Tk()    # создание окна
     ROWS    = 5         # кол-во строк
     COLUMNS = 5         # кол-во столбцов
-    MINES  = 15         # кол-во мин
+    MINES  = 10         # кол-во мин
 
     def __init__(self) -> None:
         # Создаем кнопки
@@ -34,9 +33,21 @@ class MineSweeper:
             # Цикл по столбцам
             for j in range(MineSweeper.COLUMNS):
                 btn = MyButton(MineSweeper.window, x=i, y=j, number=count)
+                btn.config(command=lambda button=btn: self.click(button))
                 temp.append(btn)
                 count += 1
             self.buttons.append(temp)
+
+    # Обработчик нажатия кнопки
+    def click(self, clicked_button: MyButton):
+        print(clicked_button)
+        if clicked_button.is_mine:
+            clicked_button.config(text="*", background="red", \
+                disabledforeground="black")
+        else:
+            clicked_button.config(text=clicked_button.number, \
+                disabledforeground="black")
+        clicked_button.config(state="disabled")
 
     # Создание кнопок
     def create_widgets(self):
