@@ -57,9 +57,14 @@ class MineSweeper:
             clicked_button.config(text="*", background="red", \
                 disabledforeground="black")
         else:
-            clicked_button.config(text=clicked_button.count_bomb, \
-                disabledforeground="black")
-        clicked_button.config(state="disabled")
+            if clicked_button.count_bomb:
+                color = colors.get(clicked_button.count_bomb, "black")
+                clicked_button.config(text=clicked_button.count_bomb, \
+                    disabledforeground=color)
+            else:
+                clicked_button.config(text='', \
+                    disabledforeground="white")
+        clicked_button.config(state="disabled", relief=tk.SUNKEN)
 
     # Создание кнопок
     def create_widgets(self):
@@ -91,7 +96,7 @@ class MineSweeper:
         self.insert_mines()
         self.count_mines_in_buttons()
         self.print_buttons()
-        self.open_all_buttons()
+        #self.open_all_buttons()
         MineSweeper.window.mainloop()
     
     # Вывод кнопок в консоль
