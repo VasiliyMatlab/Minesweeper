@@ -12,6 +12,7 @@ class MyButton(tk.Button):
         self.y = y
         self.number = number
         self.is_mine = False
+        self.count_bomb = 0
 
     def __repr__(self) -> str:
         return f"MyButton {self.number} {self.is_mine} {{{self.x}, {self.y}}}"
@@ -43,16 +44,16 @@ class MineSweeper:
             clicked_button.config(text="*", background="red", \
                 disabledforeground="black")
         else:
-            clicked_button.config(text=clicked_button.number, \
+            clicked_button.config(text=clicked_button.count_bomb, \
                 disabledforeground="black")
         clicked_button.config(state="disabled")
 
     # Создание кнопок
     def create_widgets(self):
         # Цикл по строкам
-        for i in range(MineSweeper.ROWS + 2):
+        for i in range(1, MineSweeper.ROWS + 1):
             # Цикл по столбцам
-            for j in range(MineSweeper.COLUMNS + 2):
+            for j in range(1, MineSweeper.COLUMNS + 1):
                 btn = self.buttons[i][j]
                 btn.grid(row=i, column=j)
 
@@ -66,13 +67,14 @@ class MineSweeper:
                     btn.config(text="*", background="red", \
                         disabledforeground="black")
                 else:
-                    btn.config(text=btn.number, \
+                    btn.config(text=btn.count_bomb, \
                         disabledforeground="black")
 
     # Старт игры
     def start(self):
         self.create_widgets()
         self.insert_mines()
+        self.count_mines_in_buttons()
         self.print_buttons()
         self.open_all_buttons()
         MineSweeper.window.mainloop()
@@ -93,6 +95,19 @@ class MineSweeper:
                 if btn.number in mines_indexes:
                     btn.is_mine = True
                 count += 1
+
+    def count_mines_in_buttons(self):
+        for i in range(1, MineSweeper.ROWS + 1):
+            for j in range(1, MineSweeper.COLUMNS + 1):
+                btn = self.buttons[i][j]
+                count_bomb = 0
+                if not btn.is_mine:
+                    for row_dx in [-1, 0, 1]:
+                        for col_dx in [-1, 0, 1]:
+                            neighbour = self.buttons[i+row_dx][j+col_dx]
+                            if neighbour.is_mine:
+                                count_bomb += 1
+                btn.count_bomb = count_bomb
 
     # Генерация расположения мин
     @staticmethod
