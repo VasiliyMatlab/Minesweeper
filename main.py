@@ -5,7 +5,7 @@ class MyButton(tk.Button):
     BUTTON_WIDTH = 3            # размер кнопки
     FONT = "Calibri 15 bold"    # шрифт
 
-    def __init__(self, master, x, y, number, *args, **kwargs) -> None:
+    def __init__(self, master, x, y, number=0, *args, **kwargs) -> None:
         super(MyButton, self).__init__(master, width=MyButton.BUTTON_WIDTH,\
             font=MyButton.FONT, *args, **kwargs)
         self.x = x
@@ -26,16 +26,14 @@ class MineSweeper:
     def __init__(self) -> None:
         # Создаем кнопки
         self.buttons = list()
-        count = 1
         # Цикл по строкам
-        for i in range(MineSweeper.ROWS):
+        for i in range(MineSweeper.ROWS + 2):
             temp = list()
             # Цикл по столбцам
-            for j in range(MineSweeper.COLUMNS):
-                btn = MyButton(MineSweeper.window, x=i, y=j, number=count)
+            for j in range(MineSweeper.COLUMNS + 2):
+                btn = MyButton(MineSweeper.window, x=i, y=j)
                 btn.config(command=lambda button=btn: self.click(button))
                 temp.append(btn)
-                count += 1
             self.buttons.append(temp)
 
     # Обработчик нажатия кнопки
@@ -52,17 +50,31 @@ class MineSweeper:
     # Создание кнопок
     def create_widgets(self):
         # Цикл по строкам
-        for i in range(MineSweeper.ROWS):
+        for i in range(MineSweeper.ROWS + 2):
             # Цикл по столбцам
-            for j in range(MineSweeper.COLUMNS):
+            for j in range(MineSweeper.COLUMNS + 2):
                 btn = self.buttons[i][j]
                 btn.grid(row=i, column=j)
+
+    def open_all_buttons(self):
+        # Цикл по строкам
+        for i in range(MineSweeper.ROWS + 2):
+            # Цикл по столбцам
+            for j in range(MineSweeper.COLUMNS + 2):
+                btn = self.buttons[i][j]
+                if btn.is_mine:
+                    btn.config(text="*", background="red", \
+                        disabledforeground="black")
+                else:
+                    btn.config(text=btn.number, \
+                        disabledforeground="black")
 
     # Старт игры
     def start(self):
         self.create_widgets()
         self.insert_mines()
         self.print_buttons()
+        self.open_all_buttons()
         MineSweeper.window.mainloop()
     
     # Вывод кнопок в консоль
@@ -73,10 +85,14 @@ class MineSweeper:
     # Расстановка мин
     def insert_mines(self):
         mines_indexes = self.get_mines_places()
-        for row in self.buttons:
-            for btn in row:
+        count = 1
+        for i in range(1, MineSweeper.ROWS + 1):
+            for j in range(1, MineSweeper.COLUMNS + 1):
+                btn = self.buttons[i][j]
+                btn.number = count
                 if btn.number in mines_indexes:
                     btn.is_mine = True
+                count += 1
 
     # Генерация расположения мин
     @staticmethod
