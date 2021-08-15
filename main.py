@@ -53,10 +53,26 @@ class MineSweeper:
             for j in range(MineSweeper.COLUMNS + 2):
                 btn = MyButton(MineSweeper.window, x=i, y=j)
                 btn.config(command=lambda button=btn: self.click(button))
+                btn.bind("<Button-3>", self.right_click)
                 temp.append(btn)
             self.buttons.append(temp)
 
-    # Обработчик нажатия кнопки
+    # Обработчик нажатия правой кнопки мыши
+    def right_click(self, event):
+        print(1)
+        if MineSweeper.IS_GAME_OVER:
+            return
+        cur_btn = event.widget
+        print(cur_btn["state"])
+        if cur_btn["state"] == "active":
+            cur_btn["state"] = "disable"
+            cur_btn["text"] = '†'
+            cur_btn["disabledforeground"] = "black"
+        elif cur_btn["text"] == '†':
+            cur_btn["text"] = ''
+            cur_btn["state"] = "normal"
+
+    # Обработчик нажатия левой кнопки мыши
     def click(self, clicked_button: MyButton):
         # Если игра закончена, то невозможно нажать на кнопки
         if MineSweeper.IS_GAME_OVER:
